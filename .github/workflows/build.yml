@@ -1,0 +1,35 @@
+name: .NET Build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v3
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore
+      - name: Test
+        run: dotnet test --no-build --verbosity normal
+      - name: Clean
+        run: dotnet clean
+      - name: Publish
+        run: dotnet build -o .\bin --self-contained true -c Release
+      - name: Pick
+        run: |
+          Move-Item -Path .\bin\core.dll -Destination .\core.dll
+          Move-Item -Path .\bin\command-line.exe -Destination .\WordChainCLI.exe
+          Move-Item -Path .\bin\graphical-interface.exe -Destination .\WordChainGUI.exe
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Word-Chain-Artifacts
+          path: |
+            .\core.dll
+            .\WordChainCLI.exe
+            .\WordChainGUI.exe
