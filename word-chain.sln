@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "command-line", "src\command
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "graphical-interface", "src\graphical-interface\graphical-interface.csproj", "{D3C8B69E-C5EB-42E1-ACCC-5FCD343CC116}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "core-test", "test\core-test\core-test.csproj", "{BCE0F458-9982-4FB8-840B-8216D232F162}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{D3C8B69E-C5EB-42E1-ACCC-5FCD343CC116}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D3C8B69E-C5EB-42E1-ACCC-5FCD343CC116}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D3C8B69E-C5EB-42E1-ACCC-5FCD343CC116}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BCE0F458-9982-4FB8-840B-8216D232F162}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCE0F458-9982-4FB8-840B-8216D232F162}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCE0F458-9982-4FB8-840B-8216D232F162}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCE0F458-9982-4FB8-840B-8216D232F162}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
