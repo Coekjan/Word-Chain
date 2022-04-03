@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "core", "src\core\core.csproj", "{CD10DA9E-A5C2-4FD5-A560-E17EA655162D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "command-line", "src\command-line\command-line.csproj", "{3A5F9028-B31C-4E45-91E4-5CF53FE573DE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "graphical-interface", "src\graphical-interface\graphical-interface.csproj", "{D3C8B69E-C5EB-42E1-ACCC-5FCD343CC116}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CD10DA9E-A5C2-4FD5-A560-E17EA655162D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD10DA9E-A5C2-4FD5-A560-E17EA655162D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD10DA9E-A5C2-4FD5-A560-E17EA655162D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD10DA9E-A5C2-4FD5-A560-E17EA655162D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A5F9028-B31C-4E45-91E4-5CF53FE573DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A5F9028-B31C-4E45-91E4-5CF53FE573DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A5F9028-B31C-4E45-91E4-5CF53FE573DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A5F9028-B31C-4E45-91E4-5CF53FE573DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3C8B69E-C5EB-42E1-ACCC-5FCD343CC116}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3C8B69E-C5EB-42E1-ACCC-5FCD343CC116}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3C8B69E-C5EB-42E1-ACCC-5FCD343CC116}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3C8B69E-C5EB-42E1-ACCC-5FCD343CC116}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
