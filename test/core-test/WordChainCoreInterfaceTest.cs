@@ -111,6 +111,25 @@ namespace core_test {
         }
 
         [TestMethod]
+        public unsafe void gen_chains_all_Test3() {
+            var wordList = new List<string>(new string[] { "ab" });
+            for (var c = 'b'; c <= 'b' + 5; ++c) {
+                var curStr = c.ToString();
+                for (var i = 0; i < 6; ++i) {
+                    wordList.Add(curStr + ((char) (c + 1)).ToString());
+                    curStr += c.ToString();
+                }
+            }
+            var words = wordList.ToArray();
+            var (ret, _) = Adapter.Call(words, (s, r) => WordChainCoreInterface.gen_chains_all(
+                (byte**)s.ToPointer(),
+                words.Length,
+                (byte**)r.ToPointer()
+            ));
+            Assert.IsTrue(ret == WordChainCoreInterface.ErrorBufferOverflow);
+        }
+
+        [TestMethod]
         public unsafe void gen_chain_word_Test1() {
             var words = new[] {
                 "algebra",
