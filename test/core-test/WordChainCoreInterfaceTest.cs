@@ -278,7 +278,7 @@ namespace core_test {
         }
 
         [TestMethod]
-        public unsafe void gen_chain_char_Test() {
+        public unsafe void gen_chain_char_Test1() {
             var words = new[] {
                 "algebra",
                 "apple",
@@ -305,6 +305,23 @@ namespace core_test {
                 "moon"
             });
             Assert.IsTrue(ret == 2 && result.SequenceEqual(answer));
+        }
+        
+        [TestMethod]
+        public unsafe void gen_chain_char_Test2() {
+            var words = new[] {
+                "wps",
+                "saw"
+            };
+            var (ret, _) = Adapter.Call(words, (s, r) => WordChainCoreInterface.gen_chain_char(
+                (byte**) s.ToPointer(),
+                words.Length,
+                (byte**) r.ToPointer(),
+                0,
+                0,
+                false
+            ));
+            Assert.IsTrue(ret == WordChainCoreInterface.ErrorHasCircle);
         }
     }
 }
