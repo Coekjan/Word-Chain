@@ -73,7 +73,7 @@ namespace graphical_interface {
                 try {
                     var rawInput = File.ReadAllText(path);
                     var wordList = Lexer.Lex(rawInput).ToArray();
-                    textWords.Text = string.Join("\n", wordList);
+                    textWords.Text = string.Join("\r\n", wordList);
                 } catch (IOException) {
                     MessageBox.Show("无法读取文件", "发生错误", MessageBoxButtons.OK);
                 }
