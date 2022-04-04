@@ -122,7 +122,7 @@ namespace core {
                 if (!visited.Contains(node)) {
                     var (longestPathFromNode, length) = DagFindLongestChainWithSource(node, visited, tail);
                     // ReSharper disable once InvertIf
-                    if (result == null || maxLength < length) {
+                    if (longestPathFromNode.Count >= 2 && (result == null || maxLength < length)) {
                         maxLength = length;
                         result = longestPathFromNode;
                     }
