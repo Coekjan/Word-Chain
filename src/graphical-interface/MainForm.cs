@@ -100,14 +100,14 @@ namespace graphical_interface {
                     result = CoreCaller.GenChainWordUnique(wordList);
                 } else if (radioMaxWords.Checked) {
                     result = CoreCaller.GenChainWord(wordList,
-                        checkHead.Checked && textHead.Text != "" ? textHead.Text[0] : '\0',
-                        checkTail.Checked && textTail.Text != "" ? textTail.Text[0] : '\0',
+                        checkHead.Checked && textHead.Text != "" ? char.ToLower(textHead.Text[0]) : '\0',
+                        checkTail.Checked && textTail.Text != "" ? char.ToLower(textTail.Text[0]) : '\0',
                         checkLoop.Checked
                     );
                 } else {
                     result = CoreCaller.GenChainChar(wordList,
-                        checkHead.Checked && textHead.Text != "" ? textHead.Text[0] : '\0',
-                        checkTail.Checked && textTail.Text != "" ? textTail.Text[0] : '\0',
+                        checkHead.Checked && textHead.Text != "" ? char.ToLower(textHead.Text[0]) : '\0',
+                        checkTail.Checked && textTail.Text != "" ? char.ToLower(textTail.Text[0]) : '\0',
                         checkLoop.Checked
                     );
                 }
