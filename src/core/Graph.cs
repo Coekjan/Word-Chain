@@ -76,40 +76,38 @@ namespace core {
         public List<int> FindLongestChainRecursive(Func<int, bool> head, Func<int, bool> tail) {
             var headQueue = new List<int>(_edges.Keys.Where(head));
             var longestChain = new List<int>();
+            var curValue = 0;
+            var maxValue = 0;
             foreach (var headNode in headQueue) {
-                var tempLongestChain = new List<int>();
-                FindLongestChainWithSourceRecursive(headNode, tail, new List<int>(), new HashSet<int>(),
-                    tempLongestChain);
-                // ReSharper disable once InvertIf
-                if (tempLongestChain.Count > longestChain.Count) {
-                    longestChain.Clear();
-                    longestChain.AddRange(tempLongestChain);
-                }
+                FindLongestChainWithSourceRecursive(headNode, tail, new List<int>(), new HashSet<int>(), longestChain, ref curValue, ref maxValue);
             }
 
-            return longestChain;
+            return longestChain.Count >= 2 ? longestChain : new List<int>();
         }
 
         private void FindLongestChainWithSourceRecursive(int u, Func<int, bool> tail, IList<int> curChain,
-            ISet<int> chainSet, List<int> longestChain) {
+            ISet<int> chainSet, List<int> longestChain, ref int curValue, ref int maxValue) {
             curChain.Add(u);
             chainSet.Add(u);
+            curValue += _weights[u];
 
-            if (tail(u) && curChain.Count > longestChain.Count) {
+            if (tail(u) && curValue > maxValue) {
                 longestChain.Clear();
                 longestChain.AddRange(curChain);
+                maxValue = curValue;
             }
 
             // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
             foreach (var edge in _edges[u]) {
                 var v = edge.To;
                 if (!chainSet.Contains(v)) {
-                    FindLongestChainWithSourceRecursive(v, tail, curChain, chainSet, longestChain);
+                    FindLongestChainWithSourceRecursive(v, tail, curChain, chainSet, longestChain, ref curValue, ref maxValue);
                 }
             }
 
             curChain.RemoveAt(curChain.Count - 1);
             chainSet.Remove(u);
+            curValue -= _weights[u];
         }
 
         public List<int> DagFindLongestChain(Func<int, bool> head, Func<int, bool> tail) {
