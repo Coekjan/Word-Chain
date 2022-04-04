@@ -13,7 +13,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\core\core.csproj" />
+	  <Reference Include="core">
+	    <HintPath>..\..\bin\core.dll</HintPath>
+	  </Reference>
 	</ItemGroup>
 
 </Project>

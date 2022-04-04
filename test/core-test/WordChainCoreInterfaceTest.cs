@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace core_test {
@@ -22,21 +21,6 @@ namespace core_test {
             return result;
         }
 
-        private static IEnumerable<string> ConvertSByteDim2ArrayToStringArray(byte[][] sbyteDim2Array, int length) {
-            var result = new string[length];
-            var str = new StringBuilder();
-            for (var i = 0; i < length; i++) {
-                str.Clear();
-                for (var j = 0; sbyteDim2Array[i][j] != 0; j++) {
-                    str.Append((char) sbyteDim2Array[i][j]);
-                }
-
-                result[i] = str.ToString();
-            }
-
-            return result;
-        }
-
         private static unsafe void Dim2ArrayToDoublePointer(byte[][] array, byte** result) {
             for (var i = 0; i < array.Length; i++) {
                 fixed (byte* ptr = array[i]) {
@@ -45,29 +29,41 @@ namespace core_test {
             }
         }
 
-        private static byte[][] MakeByteDim2Space() {
-            var result = new byte[WordChainCoreInterface.ResultBufferMax][];
-            for (var i = 0; i < result.Length; i++) {
-                result[i] = new byte[MaxSpace];
-            }
-
-            return result;
-        }
-
         public static unsafe (int, List<string>) Call(string[] words, Func<IntPtr, IntPtr, int> simple) {
-            var resultCharArray = MakeByteDim2Space();
             var wordsCharArray = ConvertStringArrayToSByteDim2Array(words);
             var selfManagedWordSpace = Marshal.AllocHGlobal(sizeof(byte*) * wordsCharArray.Length).ToPointer();
-            var selfManagedResultSpace = Marshal.AllocHGlobal(sizeof(byte*) * resultCharArray.Length).ToPointer();
+            var selfManagedResultSpace = Marshal.AllocHGlobal(sizeof(byte*) * 20000).ToPointer();
             Dim2ArrayToDoublePointer(wordsCharArray, (byte**) selfManagedWordSpace);
-            Dim2ArrayToDoublePointer(resultCharArray, (byte**) selfManagedResultSpace);
+            var result = new List<string>();
             var backendResult = simple((IntPtr) selfManagedWordSpace, (IntPtr) selfManagedResultSpace);
+            if (backendResult >= 0 && backendResult < 20000) {
+                for (var i = 0; i < backendResult; i++) {
+                    var bytes = ((byte**) selfManagedResultSpace)[i];
+                    var str = new StringBuilder();
+                    for (var p = bytes; *p != 0; p++) {
+                        str.Append((char) *p);
+                    }
+                    result.Add(str.ToString());
+                }
+            }
             Marshal.FreeHGlobal((IntPtr) selfManagedWordSpace);
             Marshal.FreeHGlobal((IntPtr) selfManagedResultSpace);
-            return backendResult < 0
-                ? (backendResult, new List<string>())
-                : (backendResult, ConvertSByteDim2ArrayToStringArray(resultCharArray, backendResult).ToList());
+            return (backendResult, result);
         }
+    }
+
+    internal abstract class CoreCaller {
+        [DllImport("core.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern unsafe int gen_chains_all(byte** words, int len, byte** result);
+
+        [DllImport("core.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern unsafe int gen_chain_word(byte** words, int len, byte** result, byte head, byte tail, bool enableLoop);
+
+        [DllImport("core.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern unsafe int gen_chain_word_unique(byte** words, int len, byte** result);
+
+        [DllImport("core.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern unsafe int gen_chain_char(byte** words, int len, byte** result, byte head, byte tail, bool enableLoop);
     }
 
     [TestClass]
@@ -80,7 +76,7 @@ namespace core_test {
                 "moon",
                 "noox"
             };
-            var (ret, result) = Adapter.Call(words, (s, r) => WordChainCoreInterface.gen_chains_all(
+            var (ret, result) = Adapter.Call(words, (s, r) => CoreCaller.gen_chains_all(
                 (byte**) s.ToPointer(),
                 words.Length,
                 (byte**) r.ToPointer()
@@ -102,12 +98,12 @@ namespace core_test {
                 "woo",
                 "oow"
             };
-            var (ret, _) = Adapter.Call(words, (s, r) => WordChainCoreInterface.gen_chains_all(
+            var (ret, _) = Adapter.Call(words, (s, r) => CoreCaller.gen_chains_all(
                 (byte**) s.ToPointer(),
                 words.Length,
                 (byte**) r.ToPointer()
             ));
-            Assert.IsTrue(ret == WordChainCoreInterface.ErrorHasCircle);
+            Assert.IsTrue((uint) ret == 0x80000001);
         }
 
         [TestMethod]
@@ -121,12 +117,12 @@ namespace core_test {
                 }
             }
             var words = wordList.ToArray();
-            var (ret, _) = Adapter.Call(words, (s, r) => WordChainCoreInterface.gen_chains_all(
+            var (ret, _) = Adapter.Call(words, (s, r) => CoreCaller.gen_chains_all(
                 (byte**)s.ToPointer(),
                 words.Length,
                 (byte**)r.ToPointer()
             ));
-            Assert.IsTrue(ret == WordChainCoreInterface.ErrorBufferOverflow);
+            Assert.IsTrue(ret > 20000);
         }
 
         [TestMethod]
@@ -144,7 +140,7 @@ namespace core_test {
                 "trick",
                 "pseudopseudohypoparathyroidism"
             };
-            var (ret, result) = Adapter.Call(words, (s, r) => WordChainCoreInterface.gen_chain_word(
+            var (ret, result) = Adapter.Call(words, (s, r) => CoreCaller.gen_chain_word(
                 (byte**) s.ToPointer(),
                 words.Length,
                 (byte**) r.ToPointer(),
@@ -176,7 +172,7 @@ namespace core_test {
                 "trick",
                 "pseudopseudohypoparathyroidism"
             };
-            var (ret, result) = Adapter.Call(words, (s, r) => WordChainCoreInterface.gen_chain_word(
+            var (ret, result) = Adapter.Call(words, (s, r) => CoreCaller.gen_chain_word(
                 (byte**) s.ToPointer(),
                 words.Length,
                 (byte**) r.ToPointer(),
@@ -206,7 +202,7 @@ namespace core_test {
                 "trick",
                 "pseudopseudohypoparathyroidism"
             };
-            var (ret, result) = Adapter.Call(words, (s, r) => WordChainCoreInterface.gen_chain_word(
+            var (ret, result) = Adapter.Call(words, (s, r) => CoreCaller.gen_chain_word(
                 (byte**) s.ToPointer(),
                 words.Length,
                 (byte**) r.ToPointer(),
@@ -228,7 +224,7 @@ namespace core_test {
                 "algebra",
                 "appla"
             };
-            var (ret, _) = Adapter.Call(words, (s, r) => WordChainCoreInterface.gen_chain_word(
+            var (ret, _) = Adapter.Call(words, (s, r) => CoreCaller.gen_chain_word(
                 (byte**) s.ToPointer(),
                 words.Length,
                 (byte**) r.ToPointer(),
@@ -236,7 +232,7 @@ namespace core_test {
                 0,
                 false
             ));
-            Assert.IsTrue(ret == WordChainCoreInterface.ErrorHasCircle);
+            Assert.IsTrue((uint) ret == 0x80000001);
         }
 
         [TestMethod]
@@ -254,7 +250,7 @@ namespace core_test {
                 "trick",
                 "pseudopseudohypoparathyroidism"
             };
-            var (ret, result) = Adapter.Call(words, (s, r) => WordChainCoreInterface.gen_chain_word_unique(
+            var (ret, result) = Adapter.Call(words, (s, r) => CoreCaller.gen_chain_word_unique(
                 (byte**) s.ToPointer(),
                 words.Length,
                 (byte**) r.ToPointer()
@@ -275,12 +271,12 @@ namespace core_test {
                 "egg",
                 "ga"
             };
-            var (ret, _) = Adapter.Call(words, (s, r) => WordChainCoreInterface.gen_chain_word_unique(
+            var (ret, _) = Adapter.Call(words, (s, r) => CoreCaller.gen_chain_word_unique(
                 (byte**) s.ToPointer(),
                 words.Length,
                 (byte**) r.ToPointer()
             ));
-            Assert.IsTrue(ret == WordChainCoreInterface.ErrorHasCircle);
+            Assert.IsTrue((uint) ret == 0x80000001);
         }
 
         [TestMethod]
@@ -288,7 +284,7 @@ namespace core_test {
             var words = new[] {
                 "algebra"
             };
-            var (ret, _) = Adapter.Call(words, (s, r) => WordChainCoreInterface.gen_chain_word_unique(
+            var (ret, _) = Adapter.Call(words, (s, r) => CoreCaller.gen_chain_word_unique(
                 (byte**) s.ToPointer(),
                 words.Length,
                 (byte**) r.ToPointer()
@@ -311,7 +307,7 @@ namespace core_test {
                 "trick",
                 "pseudopseudohypoparathyroidism"
             };
-            var (ret, result) = Adapter.Call(words, (s, r) => WordChainCoreInterface.gen_chain_char(
+            var (ret, result) = Adapter.Call(words, (s, r) => CoreCaller.gen_chain_char(
                 (byte**) s.ToPointer(),
                 words.Length,
                 (byte**) r.ToPointer(),
@@ -332,7 +328,7 @@ namespace core_test {
                 "wps",
                 "saw"
             };
-            var (ret, _) = Adapter.Call(words, (s, r) => WordChainCoreInterface.gen_chain_char(
+            var (ret, _) = Adapter.Call(words, (s, r) => CoreCaller.gen_chain_char(
                 (byte**) s.ToPointer(),
                 words.Length,
                 (byte**) r.ToPointer(),
@@ -340,7 +336,7 @@ namespace core_test {
                 0,
                 false
             ));
-            Assert.IsTrue(ret == WordChainCoreInterface.ErrorHasCircle);
+            Assert.IsTrue((uint) ret == 0x80000001);
         }
     }
 }

@@ -1,2 +1,6 @@
 bin/
 obj/
+Debug/
+*.filters
+*.user
+*.metagen

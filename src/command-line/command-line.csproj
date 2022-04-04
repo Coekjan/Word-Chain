@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -13,7 +13,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\core\core.csproj" />
+      <Reference Include="core">
+        <HintPath>..\..\bin\core.dll</HintPath>
+      </Reference>
     </ItemGroup>
 
 </Project>
