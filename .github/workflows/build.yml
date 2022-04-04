@@ -1,10 +1,10 @@
-name: .NET Build
+name: C++ DLL & .NET Build
 
 on:
   push:
-    branches: [ master ]
+    branches: [ dev-combine ]
   pull_request:
-    branches: [ master ]
+    branches: [ dev-combine ]
 
 jobs:
   build:
@@ -13,14 +13,24 @@ jobs:
       - uses: actions/checkout@v3
       - name: Restore dependencies
         run: dotnet restore
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1.1
       - name: Build
-        run: dotnet build --no-restore
+        run: |
+          MSBuild .\src\core\core.vcxproj -p:OutDir=..\..\bin\ -p:Platform=x64
+          dotnet build .\test\core-test\core-test.csproj
       - name: Test
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test .\test\core-test\core-test.csproj --no-build --verbosity normal
       - name: Clean
-        run: dotnet clean
+        run: |
+          MSBuild .\src\core\core.vcxproj -t:Clean -p:OutDir=..\..\bin\
+          dotnet clean .\src\command-line\command-line.csproj -o .\bin
+          dotnet clean .\src\graphical-interface\graphical-interface.csproj -o .\bin
       - name: Publish
-        run: dotnet build -o .\bin --self-contained true -c Release
+        run: |
+          MSBuild .\src\core\core.vcxproj -p:OutDir=..\..\bin\ -p:Platform=x64 -p:Configuration=Release
+          dotnet build .\src\command-line\command-line.csproj -o .\bin --self-contained true -c Release
+          dotnet build .\src\graphical-interface\graphical-interface.csproj -o .\bin --self-contained true -c Release
       - name: Pick
         run: |
           Move-Item -Path .\bin\core.dll -Destination .\core.dll
@@ -28,7 +38,7 @@ jobs:
           Move-Item -Path .\bin\graphical-interface.exe -Destination .\WordChainGUI.exe
       - uses: actions/upload-artifact@v3
         with:
-          name: Word-Chain-Artifacts
+          name: Word-Chain-Artifacts-Dev-Combine
           path: |
             .\core.dll
             .\WordChainCLI.exe
