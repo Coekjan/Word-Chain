@@ -91,7 +91,7 @@ namespace core {
             chainSet.Add(u);
             curValue += _weights[u];
 
-            if (tail(u) && curValue > maxValue) {
+            if (tail(u) && curChain.Count >= 2 && curValue > maxValue) {
                 longestChain.Clear();
                 longestChain.AddRange(curChain);
                 maxValue = curValue;
